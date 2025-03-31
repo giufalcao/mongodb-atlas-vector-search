@@ -26,6 +26,16 @@ class Settings(BaseSettings):
         description="Collection name for the local MongoDB Atlas instance.",
     )
 
+    MONGODB_INDEX_NAME: str = Field(
+        default="",
+        description="Index name for searching in the local MongoDB Atlas instance.",
+    )
+
+    MONGODB_ATTRIBUTE_NAME: str = Field(
+        default="",
+        description="Attribute storing vector embeddings for the local MongoDB Atlas instance.",
+    )
+
     @field_validator("MONGODB_DATABASE_NAME", "MONGODB_URI", "MONGODB_COLLECTION_NAME")
     @classmethod
     def check_not_empty(cls, value: str, info) -> str:
