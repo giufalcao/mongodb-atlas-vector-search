@@ -62,9 +62,6 @@ The project requires access to the following cloud services. Authentication is h
      OPENAI_API_KEY="your-openai-api-key"
      ```
 
-
-```
-
 ## Contributing
 
 Contributions are welcome! Feel free to submit issues or pull requests.
