@@ -1,5 +1,4 @@
 from typing import List
-from sentence_transformers import SentenceTransformer
 
 
 # Define a function to generate embeddings (moved outside functions)

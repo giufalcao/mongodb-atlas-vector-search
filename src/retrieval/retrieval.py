@@ -37,3 +37,4 @@ def perform_vector_search(client: AtlasClient, embedding_vector: List[float]) ->
     except Exception as e:
         logger.error(f"Error performing vector search: {e}")
         return []
+    

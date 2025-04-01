@@ -68,15 +68,18 @@ if __name__ == "__main__":
         parsed_args.similarity_metric
     )
 
-    find_sample_movies(client)
+    # find_sample_movies(client)
 
     logger.info("Starting vector search with MongoDB Atlas.")
-    model = SentenceTransformer("nomic-ai/nomic-embed-text-v1", trust_remote_code=True)
-    user_input_text = "beach house"
+    model = SentenceTransformer("nomic-ai/nomic-embed-text-v1", trust_remote_code=True) # type: ignore
+    user_input_text = "humans fighting"
     embedding = retrieval.get_embedding(model, user_input_text)
+    logger.info(f"Movies embedding: {embedding}")
 
     logger.info(f"Performing vector search for query: '{user_input_text}'")
     movies = retrieval.perform_vector_search(client, embedding)
+
+    #TODO: Use a different model to generate embeddings.
 
     if movies:
         logger.info(f"Vector search returned {len(movies)} results.")

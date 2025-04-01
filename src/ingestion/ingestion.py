@@ -6,6 +6,30 @@ from typing import List, Dict, Optional
 from src.utils import utils_model
 
 
+def create_docs_with_embeddings(embeddings, data, atlas_client: AtlasClient, collection_name: str):
+   """
+    Creates a list of documents with embeddings and corresponding text data, and ingests them into a MongoDB Atlas collection.
+
+    Args:
+        embeddings (List[List[float]]): A list of embeddings.
+        data (List[str]): A list of text data.
+        atlas_client (AtlasClient): An instance of the AtlasClient class.
+        collection_name (str): The name of the collection to insert documents into.
+   """
+   docs = []
+   for i, (embedding, text) in enumerate(zip(embeddings, data)):
+      doc = {
+            "_id": i,
+            "text": text,
+            "embedding": embedding,
+      }
+      docs.append(doc)
+
+   # Ingest data into Atlas
+   collection = atlas_client.get_collection(collection_name)
+   collection.insert_many(docs)
+
+
 def get_embedded_movies_with_summary(
     atlas_client: AtlasClient,
     collection_name: str = "embedded_movies",
@@ -70,27 +94,3 @@ def update_embedded_movies_with_embeddings(
     except Exception as e:
         print(f"An error occurred: {e}")
         return None
-
-
-def create_docs_with_embeddings(embeddings, data, atlas_client: AtlasClient, collection_name: str):
-   """
-    Creates a list of documents with embeddings and corresponding text data, and ingests them into a MongoDB Atlas collection.
-
-    Args:
-        embeddings (List[List[float]]): A list of embeddings.
-        data (List[str]): A list of text data.
-        atlas_client (AtlasClient): An instance of the AtlasClient class.
-        collection_name (str): The name of the collection to insert documents into.
-   """
-   docs = []
-   for i, (embedding, text) in enumerate(zip(embeddings, data)):
-      doc = {
-            "_id": i,
-            "text": text,
-            "embedding": embedding,
-      }
-      docs.append(doc)
-
-   # Ingest data into Atlas
-   collection = atlas_client.get_collection(collection_name)
-   collection.insert_many(docs)
