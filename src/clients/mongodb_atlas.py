@@ -1,5 +1,6 @@
 from pymongo import MongoClient
 from pymongo.operations import SearchIndexModel
+from pymongo.database import Database
 from typing import List, Dict, Optional
 
 class AtlasClient:
@@ -26,6 +27,15 @@ class AtlasClient:
             print("Successfully connected to MongoDB Atlas.")
         except Exception as e:
             print(f"Error connecting to MongoDB Atlas: {e}")
+
+    def get_database(self) -> Database:
+        """
+        Retrieves the database object.
+
+        Returns:
+            Database: The MongoDB database object.
+        """
+        return self.database
 
 
     def get_collection(self, collection_name: str):
@@ -95,7 +105,7 @@ class AtlasClient:
             }
         ])
         return list(results)
-
+    
 
     def close_connection(self) -> None:
         """Closes the MongoDB connection."""

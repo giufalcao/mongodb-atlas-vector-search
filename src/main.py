@@ -1,25 +1,19 @@
 import sys
 import argparse
 from loguru import logger
+from sentence_transformers import SentenceTransformer
 
 from configs import conf_embedding, conf_env
-from clients.mongodb_atlas import AtlasClient, SearchIndexModel
+from clients.mongodb_atlas import AtlasClient
 from infrastructure.create_atlas_search_index import setup_vector_index
+from retrieval import retrieval
 
 
-def parse_args(parsed_args, client: AtlasClient, index_name: str, vector_field: str, dimensions: int, similarity_metric: str):
+def parse_args(client: AtlasClient, setup_search_index: bool, index_name: str, vector_field: str, dimensions: int, similarity_metric: str):
     """
     Parses command-line arguments and sets up the vector index if requested.
-
-    Args:
-        parsed_args (argparse.Namespace): The parsed command-line arguments.
-        client (AtlasClient): The MongoDB Atlas client instance.
-        index_name (str): The desired name for the vector search index.
-        vector_field (str): The field in the documents that contains the vector embeddings.
-        dimensions (int): The dimensionality of the vector embeddings.
-        similarity_metric (str): The similarity metric to use.
     """
-    if parsed_args.setup_search_index:
+    if setup_search_index:
         logger.info("Setting up vector index...")
         setup_vector_index(
             client,
@@ -31,7 +25,25 @@ def parse_args(parsed_args, client: AtlasClient, index_name: str, vector_field: 
         )
         logger.info("Vector index setup complete.")
     else:
-        logger.info("Using existent collection defined in .env")
+        logger.info("Using existing collection defined in .env")
+
+
+def find_sample_movies(client: AtlasClient):
+    """
+    Finds and logs sample movies from the collection.
+    """
+    try:
+        logger.info("Fetching 5 sample movies...")
+        movies = client.find(collection_name=conf_env.settings.MONGODB_COLLECTION_NAME, limit=5)
+        if movies:
+            logger.info(f"Found {len(movies)} movies.")
+            for movie in movies:
+                logger.info(f"Movie ID: {movie['_id']} | Title: {movie['title']} | Year: {movie['year']}")
+        else:
+            logger.warning("No movies found.")
+    except Exception as e:
+        logger.error(f"Error finding and logging movies: {e}")
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="MongoDB Atlas Vector Search Example")
@@ -42,32 +54,36 @@ if __name__ == "__main__":
     parser.add_argument("--similarity_metric", type=str, default="dotProduct", help="Similarity metric (cosine, dotProduct, euclidean)")
     parsed_args = parser.parse_args(sys.argv[1:])
 
+    logger.info("Initializing MongoDB Atlas client...")
     client = AtlasClient(conf_env.settings.MONGODB_URI, conf_env.settings.MONGODB_DATABASE_NAME)
     client.ping()
 
-    parse_args(parsed_args, client, parsed_args.index_name, parsed_args.vector_field, parsed_args.dimensions, parsed_args.similarity_metric)
-
-    # Find and print some sample movies
-    try:
-        logger.info(f"Finding 5 sample movies.")
-        movies = client.find(collection_name=conf_env.settings.MONGODB_COLLECTION_NAME, limit=5)
-        if movies:
-            logger.info(f"Found {len(movies)} movies.")
-            for idx, movie in enumerate(movies):
-                print(f'{idx+1}\nid: {movie["_id"]}\ntitle: {movie["title"]},\nyear: {movie["year"]}\nplot: {movie["plot"]}\n')
-        else:
-            logger.warning("No movies found.")
-    except Exception as e:
-        logger.error(f"Error finding and printing movies: {e}")
-
-    results = client.vector_search(
-        conf_env.settings.MONGODB_COLLECTION_NAME,
-        conf_env.settings.MONGODB_INDEX_NAME,
-        conf_env.settings.MONGODB_ATTRIBUTE_NAME,
-        conf_embedding.EMBEDDING_VECTOR,
+    logger.info("Starting basic search with MongoDB Atlas.")
+    parse_args(
+        client,
+        parsed_args.setup_search_index,
+        parsed_args.index_name,
+        parsed_args.vector_field,
+        parsed_args.dimensions,
+        parsed_args.similarity_metric
     )
 
-    for result in results:
-        print(result)
+    find_sample_movies(client)
+
+    logger.info("Starting vector search with MongoDB Atlas.")
+    model = SentenceTransformer("nomic-ai/nomic-embed-text-v1", trust_remote_code=True)
+    user_input_text = "beach house"
+    embedding = retrieval.get_embedding(model, user_input_text)
+
+    logger.info(f"Performing vector search for query: '{user_input_text}'")
+    movies = retrieval.perform_vector_search(client, embedding)
+
+    if movies:
+        logger.info(f"Vector search returned {len(movies)} results.")
+        for movie in movies:
+            logger.info(f"Movie ID: {movie['_id']} | Title: {movie['title']} | Year: {movie['year']} | Search Score: {movie['search_score']}")
+    else:
+        logger.warning("No movies found in vector search.")
 
     client.close_connection()
+    logger.info("MongoDB Atlas client connection closed.")
