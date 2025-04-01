@@ -1,4 +1,4 @@
-from clients.mongodb_atlas import AtlasClient, SearchIndexModel
+from src.clients.mongodb_atlas import AtlasClient, SearchIndexModel
 
 def setup_vector_index(client: AtlasClient, collection_name: str, index_name: str, vector_field: str, dimensions: int, similarity_metric: str = "cosine") -> None:
     """

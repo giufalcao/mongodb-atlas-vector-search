@@ -50,7 +50,7 @@ if __name__ == "__main__":
     parser.add_argument("--setup_search_index", action="store_true", default=False, help="Setup the vector index")
     parser.add_argument("--index_name", type=str, default="test_vector_index", help="Name of the vector index")
     parser.add_argument("--vector_field", type=str, default="plot_embedding", help="Field containing vector embeddings")
-    parser.add_argument("--dimensions", type=int, default=1536, help="Dimensionality of vector embeddings")
+    parser.add_argument("--dimensions", type=int, default=768, help="Dimensionality of vector embeddings")
     parser.add_argument("--similarity_metric", type=str, default="dotProduct", help="Similarity metric (cosine, dotProduct, euclidean)")
     parsed_args = parser.parse_args(sys.argv[1:])
 
