@@ -45,7 +45,7 @@ The project requires access to the following cloud services. Authentication is h
 
 3. Create a virtual environment and install dependencies using `uv`:
    ```sh
-   uv venv
+   uv <name-of-your-env>
    uv pip install -r requirements.txt
    ```
 
