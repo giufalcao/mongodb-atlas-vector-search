@@ -1,6 +1,7 @@
 import sys
 import argparse
 from loguru import logger
+import numpy as np
 from sentence_transformers import SentenceTransformer
 
 from configs import conf_embedding, conf_env
@@ -68,18 +69,37 @@ if __name__ == "__main__":
         parsed_args.similarity_metric
     )
 
+    #TODO: Step 1: Query sample movies
+
     # find_sample_movies(client)
+
+    #TODO: Step 2: Read data from Atlas
+
+    #TODO: Step 3: Genereate embedding from the data read
+
+    #TODO: Step 4: Store those embeddings in Atlas
+
+    #TODO: Step 5: Create a vector index search
+
+    parse_args(
+        client,
+        parsed_args.setup_search_index,
+        parsed_args.index_name,
+        parsed_args.vector_field,
+        parsed_args.dimensions,
+        parsed_args.similarity_metric
+    )
+
+    #TODO: Step 6: Take user input, embeed it and query Atlas
+
 
     logger.info("Starting vector search with MongoDB Atlas.")
     model = SentenceTransformer("nomic-ai/nomic-embed-text-v1", trust_remote_code=True) # type: ignore
     user_input_text = "humans fighting"
     embedding = retrieval.get_embedding(model, user_input_text)
-    logger.info(f"Movies embedding: {embedding}")
 
     logger.info(f"Performing vector search for query: '{user_input_text}'")
     movies = retrieval.perform_vector_search(client, embedding)
-
-    #TODO: Use a different model to generate embeddings.
 
     if movies:
         logger.info(f"Vector search returned {len(movies)} results.")
