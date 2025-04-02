@@ -11,7 +11,7 @@ from src.ingestion import ingestion
 
 
 def parse_args(
-    create_vetor_search_index: str,
+    create_vector_search_index: str,
     field_to_embed: str,
     index_name: str, 
     embed_field: str, 
@@ -23,7 +23,7 @@ def parse_args(
     Parses command-line arguments and sets up the vector index if requested.
     Returns all arguments as individual values.
     """
-    create_vetor_search_index_value = create_vetor_search_index
+    create_vetor_search_index_value = create_vector_search_index
     field_to_embed_value = field_to_embed
     index_name_value = index_name
     embed_field_value = embed_field
@@ -53,7 +53,7 @@ def parse_args(
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="MongoDB Atlas Vector Search Example")
-    parser.add_argument("--create_vetor_search_index", type=bool, default=False, help="Create Vector Search Index")
+    parser.add_argument("--create_vector_search_index", type=bool, default=False, help="Create Vector Search Index")
     parser.add_argument("--field_to_embed", type=str, default="plot", help="Name of the column we want to embed")
     parser.add_argument("--index_name", type=str, default="test_vector_index", help="Name of the vector index")
     parser.add_argument("--embed_field", type=str, default="new_embedding", help="Field containing vector embeddings")
@@ -72,7 +72,7 @@ if __name__ == "__main__":
     logger.info("MongoDB Atlas client initialized.")
     
     (   
-        create_vetor_search_index,
+        create_vector_search_index,
         field_to_embed,
         index_name, 
         embed_field, 
@@ -80,7 +80,7 @@ if __name__ == "__main__":
         similarity_metric ,
         quantization
     ) = parse_args(
-        parsed_args.create_vetor_search_index,
+        parsed_args.create_vector_search_index,
         parsed_args.field_to_embed,
         parsed_args.index_name,
         parsed_args.embed_field,
@@ -99,7 +99,7 @@ if __name__ == "__main__":
     logger.info("Data preparation and ingestion finished.")
     logger.critical("This will not work on free tier clusters.")
 
-    if create_vetor_search_index:
+    if create_vector_search_index:
         logger.info("Creating Vector Search Index...")
         logger.critical("This will not work on free tier clusters.")
         client.create_vector_search_index(

@@ -104,13 +104,7 @@ If you run into issues, here are some common solutions:
    - Ensuring **indexes** are properly set up in MongoDB Atlas.
    - Checking if embeddings were successfully stored in the database.
 
-### 4. `Environment variable errors`
-   **Solution:** Double-check that `.env` is properly configured and loaded using:
-   ```bash
-   cat .env
-   ```
-
-### 5. **Some Features May Not Work on MongoDB Atlas Free Tier**
+### 4. **Some Features May Not Work on MongoDB Atlas Free Tier**
    **Issue:** Certain capabilities, such as **vector search on large datasets** or **advanced indexing**, may not be available on the **Free Tier** of MongoDB Atlas.
    **Solution:** Consider upgrading to a **paid tier** for full access to all vector search features.
 
