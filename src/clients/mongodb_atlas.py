@@ -58,13 +58,13 @@ class AtlasClient:
         return list(self.collection.find(filter or {}, projection or {}, limit=limit))
 
 
-    def create_vector_search_index(self, index_name: str, vector_field: str, dimensions: int, similarity_metric: str, quantization: str) -> None:
+    def create_vector_search_index(self, index_name: str, embed_field: str, dimensions: int, similarity_metric: str, quantization: str) -> None:
         """
         Creates a vector search index on the specified collection.
         
         Args:
             index_name (str): The desired name for the vector search index.
-            vector_field (str): The field in the documents that contains the vector embeddings.
+            embed_field (str): The field in the documents that contains the vector embeddings.
             dimensions (int): The dimensionality of the vector embeddings.
             similarity_metric (str): The similarity metric to use (e.g., cosine, dotProduct, euclidean).
             quantization (str): The quantization method to apply (e.g., 'none', 'scalar', 'product').
@@ -74,7 +74,7 @@ class AtlasClient:
                 "fields": [
                     {
                         "type": "vector",
-                        "path": vector_field,
+                        "path": embed_field,
                         "numDimensions": dimensions,
                         "similarity": similarity_metric,
                         "quantization": quantization,
@@ -83,7 +83,7 @@ class AtlasClient:
                 ]
             },
             name=index_name,
-            type="vectorSearch"
+            type="vectorSearch" # type: ignore
         )
             
         try:

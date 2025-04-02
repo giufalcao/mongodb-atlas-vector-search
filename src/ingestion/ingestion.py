@@ -1,42 +1,77 @@
-import logging
+from loguru import logger
+import pymongo
 from sentence_transformers import SentenceTransformer
 
 from src.clients.mongodb_atlas import AtlasClient
-from src.common.embedding import get_embedding
+from src.common.model import get_embedding, initialize_model
 
-def ingest_embeddings(client: AtlasClient, vector_to_embed: str, vector_field: str, model: str) -> None:
+
+def fetch_documents(client: AtlasClient, field_to_embed: str, batch_size: int):
+    """Fetches documents from MongoDB that require embeddings."""
+    logger.info(f"Fetching up to {batch_size} documents from Atlas...")
+    field_to_return = {"_id": 1, field_to_embed: 1}
+    filter_documents = {field_to_embed: {"$exists": True}}
+
+    documents = list(client.find(
+        filter=filter_documents,
+        projection=field_to_return,
+        limit=batch_size
+    ))
+
+    logger.info(f"Fetched {len(documents)} documents.")
+    return documents
+
+
+def generate_embeddings(model: SentenceTransformer, documents: list, field_to_embed: str):
+    """Generates embeddings for a batch of documents."""
+    logger.info("Generating embeddings for documents...")
+    for doc in documents:
+        doc["embedding"] = get_embedding(model, doc[field_to_embed])
+    logger.info("Embeddings generated.")
+    return documents
+
+
+def update_documents(client: AtlasClient, documents: list, embed_field: str):
+    """Performs a bulk update of documents in MongoDB."""
+    if not documents:
+        return
+
+    logger.info(f"Updating {len(documents)} documents in MongoDB...")
+    updates = [
+        pymongo.UpdateOne({"_id": doc["_id"]}, {"$set": {embed_field: doc["embedding"]}})
+        for doc in documents
+    ]
+
+    collection = client.database["new_collection"]
+
+    collection.bulk_write(updates)
+    logger.info("Documents successfully updated.")
+
+
+def ingest_embeddings(client: AtlasClient, field_to_embed: str, embed_field: str, model_name: str, batch_size: int = 100):
     """
-    Reads documents from Atlas, generates embeddings using Nomic AI model,
+    Reads documents from Atlas, generates embeddings using the specified model,
     and updates the documents with the generated embeddings.
 
     Args:
         client (AtlasClient): MongoDB client object.
-        vector_to_embed (str): The field containing the text to embed.
-        vector_field (str): The field to store the generated embeddings.
-        model (str): Configuration object containing model information.
+        field_to_embed (str): The field containing the text to embed.
+        embed_field (str): The field to store the generated embeddings.
+        model_name (str): Name of the embedding model.
+        batch_size (int): Number of documents to process per batch. Default is 100.
     """
+    model = initialize_model(model_name)
+    total_processed = 0
 
-    logger = logging.getLogger(__name__)
+    while True:
+        documents = fetch_documents(client, field_to_embed, batch_size)
+        if not documents:
+            break 
 
-    logger.info("Reading documents from Atlas...")
-    field_to_return = {"_id": 1, vector_to_embed: 1}
-    filter_documents = {vector_to_embed: {"$exists": True}}
-    documents = list(client.find(
-        filter=filter_documents,
-        projection=field_to_return,
-        limit=1
-    ))
-    logger.info(f"Documents read completed. Len: {len(documents)}.")
+        documents = generate_embeddings(model, documents, field_to_embed)
+        update_documents(client, documents, embed_field)
 
-    logger.info("Generating embeddings...")
-    model = SentenceTransformer(model, trust_remote_code=True) # type: ignore
-    for doc in documents:
-        doc["embedding"] = get_embedding(model, doc[vector_to_embed])
-    logger.info("Embeddings generated.")
+        total_processed += len(documents)
+        logger.info(f"Total processed: {total_processed}")
 
-    logger.info("Updating documents with embeddings in Atlas...")
-    for doc in documents:
-        client.collection.update_one({"_id": doc["_id"]}, {"$set": {vector_field: doc["embedding"]}})
-
-    logger.info("Embeddings successfully stored in Atlas.")
-    return
+    logger.info(f"Embedding ingestion completed. Total documents processed: {total_processed}")
