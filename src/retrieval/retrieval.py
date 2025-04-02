@@ -1,3 +1,4 @@
+from typing import List
 from loguru import logger
 from sentence_transformers import SentenceTransformer
 
@@ -11,7 +12,7 @@ def generate_query_embedding(model: SentenceTransformer, query_text: str):
     return get_embedding(model, query_text)
 
 
-def run_vector_search(client: AtlasClient, index_name: str, embed_field: str, embedding):
+def run_vector_search(client: AtlasClient, index_name: str, embed_field: str, embedding: List[float]):
     """Runs a vector search on MongoDB Atlas and returns the results."""
     logger.info("Performing vector search in MongoDB Atlas.")
     results = client.run_vector_search_index(index_name, embed_field, embedding)

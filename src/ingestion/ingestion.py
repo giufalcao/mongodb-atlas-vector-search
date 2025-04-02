@@ -6,11 +6,11 @@ from src.clients.mongodb_atlas import AtlasClient
 from src.common.model import get_embedding, initialize_model
 
 
-def fetch_documents(client: AtlasClient, field_to_embed: str, batch_size: int):
+def fetch_documents(client: AtlasClient, field_to_embed: str,  embed_field: str, batch_size: int):
     """Fetches documents from MongoDB that require embeddings."""
     logger.info(f"Fetching up to {batch_size} documents from Atlas...")
     field_to_return = {"_id": 1, field_to_embed: 1}
-    filter_documents = {field_to_embed: {"$exists": True}}
+    filter_documents = {field_to_embed: {"$exists": True}, embed_field: {"$exists": False}}
 
     documents = list(client.find(
         filter=filter_documents,
@@ -64,7 +64,7 @@ def ingest_embeddings(client: AtlasClient, field_to_embed: str, embed_field: str
     total_processed = 0
 
     while True:
-        documents = fetch_documents(client, field_to_embed, batch_size)
+        documents = fetch_documents(client, field_to_embed, embed_field, batch_size)
         if not documents:
             break 
 

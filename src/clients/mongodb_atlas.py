@@ -83,7 +83,7 @@ class AtlasClient:
                 ]
             },
             name=index_name,
-            type="vectorSearch" # type: ignore
+            type="vectorSearch"
         )
             
         try:
@@ -120,7 +120,7 @@ class AtlasClient:
         Returns:
             List[Dict]: List of search results.
         """
-        results = self.collection.aggregate([
+        pipeline = [
             {
                 '$vectorSearch': {
                     "index": index_name,
@@ -129,17 +129,10 @@ class AtlasClient:
                     "numCandidates": 50,
                     "limit": limit,
                 }
-            },
-            {
-                "$project": {
-                    '_id': 1,
-                    'title': 1,
-                    'plot': 1,
-                    'year': 1,
-                    "search_score": {"$meta": "vectorSearchScore"}
-                }
             }
-        ])
+        ]
+        
+        results = self.collection.aggregate(pipeline)
         return list(results)
     
 

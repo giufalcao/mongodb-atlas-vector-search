@@ -57,7 +57,7 @@ The project requires access to **MongoDB Atlas**. Authentication is handled via 
 3. **Create a virtual environment and install dependencies:**
    ```bash
    uv venv <name-of-your-env>
-   source ./.venv-offline/bin/activate  # or ./.venv-offline/bin/activate
+   source ./.<name-of-your-env>/bin/activate  # or ./.<name-of-your-env>/bin/activate
    uv pip install -e .
    ```
 
