@@ -23,7 +23,8 @@ def ingest_embeddings(client: AtlasClient, vector_to_embed: str, vector_field: s
     filter_documents = {vector_to_embed: {"$exists": True}}
     documents = list(client.find(
         filter=filter_documents,
-        projection=field_to_return
+        projection=field_to_return,
+        limit=1
     ))
     logger.info(f"Documents read completed. Len: {len(documents)}.")
 

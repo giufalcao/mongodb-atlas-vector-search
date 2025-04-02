@@ -1,4 +1,3 @@
-from sys import exception
 from pymongo import MongoClient
 from pymongo.operations import SearchIndexModel
 from typing import List, Dict, Optional

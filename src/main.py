@@ -6,7 +6,8 @@ from sentence_transformers import SentenceTransformer
 
 from configs import conf_models, conf_env
 from clients.mongodb_atlas import AtlasClient
-from retrieval import retrieval
+from src.retrieval import retrieval
+from src.ingestion import ingestion
 
 
 def parse_args(
@@ -105,31 +106,19 @@ if __name__ == "__main__":
         parsed_args.quantization
     )
 
-    logger.info("Reading documents from Atlas...")
-    field_to_return = {"_id": 1, vector_to_embed: 1}
-    filter_documents = {vector_to_embed: {"$exists": True}}
-    documents = client.find(
-        filter=filter_documents,
-        projection=field_to_return,
-        limit=1
+    logger.info("Data preparation and ingestion starting...")
+    ingestion.ingest_embeddings(
+        client,
+        vector_to_embed,
+        vector_field,
+        conf_models.NOMIC_AI_EMBED_TEXT_V1
     )
-    logger.info(f"Documents read completed. Len: {len(documents)}.")
-
-    logger.info("Generating embeddings...")
-    model = SentenceTransformer(conf_models.NOMIC_AI_EMBED_TEXT_V1, trust_remote_code=True) # type: ignore
-    for doc in documents:
-        doc["embedding"] = model.encode(doc[vector_to_embed], precision="float32").tolist()
-    logger.info("Embeddings generated.")
-
-    logger.info("Updating documents with embeddings in Atlas...")
-    for doc in documents:
-        client.collection.update_one({"_id": doc["_id"]}, {"$set": {vector_field: doc["embedding"]}})
-
-    logger.info("Embeddings successfully stored in Atlas.")
+    logger.info("Data preparation and ingestion finished.")
+    logger.critical("This will not work on free tier clusters.")
 
     if create_vetor_search_index:
         logger.info("Creating Vector Search Index...")
-        # TODO: Fix create_vector_search_index function
+        logger.critical("This will not work on free tier clusters.")
         client.create_vector_search_index(
             index_name,
             vector_field,
@@ -142,26 +131,16 @@ if __name__ == "__main__":
     else:
         logger.info("Using existing collection defined in .env")
 
-    # TODO: Move this section to the retrieval
-    logger.info("Starting vector search with MongoDB Atlas.")
+    logger.info("Data retrieval starting...")
     user_input_text = "humans fighting"
-    embedding = model.encode(user_input_text, precision="float32").tolist()
-
-
-    # TODO: Test run_vector_search_index
-    logger.info(f"Performing vector search for query: '{user_input_text}'")
-    movies = client.run_vector_search_index(
-        index_name,
-        vector_field,
-        embedding
+    movies = retrieval.retrieval_relevant_documents(
+        client, 
+        user_input_text,
+        index_name, 
+        vector_field, 
+        conf_models.NOMIC_AI_EMBED_TEXT_V1
     )
-
-    if movies:
-        logger.info(f"Vector search returned {len(movies)} results.")
-        for movie in movies:
-            logger.info(f"Movie ID: {movie['_id']} | Title: {movie['title']} | Year: {movie['year']} | Search Score: {movie['search_score']}")
-    else:
-        logger.warning("No movies found in vector search.")
+    logger.info("Data retrieval finished.")
 
     client.close_connection()
     logger.info("MongoDB Atlas client connection closed.")

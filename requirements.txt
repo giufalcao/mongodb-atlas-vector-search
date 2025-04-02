@@ -4,3 +4,5 @@ python-dotenv==0.21.1
 pydantic-settings==2.8.0
 loguru==0.7.2
 openai==1.13.3
+sentence-transformers==4.0.0
+einops==0.8.1
