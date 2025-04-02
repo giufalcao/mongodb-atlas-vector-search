@@ -77,16 +77,10 @@ The project requires access to **MongoDB Atlas**. Authentication is handled via 
 
 ## 🎯 Usage
 
-1. **Run the script to ingest documents with vector embeddings:**
+1. **Run the pipeline:**
    ```bash
-   python src/ingest.py
+   python src/main.py
    ```
-
-2. **Run a vector search query:**
-   ```bash
-   python src/retrieve.py "your search query"
-   ```
-
 ---
 
 ## 🛠️ Troubleshooting
