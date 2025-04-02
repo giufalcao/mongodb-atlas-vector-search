@@ -1,72 +1,133 @@
 # MongoDB Atlas Vector Search
 
-This repository demonstrates how to perform vector search using MongoDB Atlas. It provides an example of integrating vector embeddings with MongoDB's search capabilities for efficient similarity search.
+This repository demonstrates how to perform **vector search** using **MongoDB Atlas**. It provides an example of integrating vector embeddings with MongoDB's search capabilities for efficient similarity search.
 
-This repository was created to address the [Atlas Vector Search Overview](https://www.mongodb.com/docs/atlas/atlas-vector-search/vector-search-overview/) and its code examples and tutorials.
+This project was created to address the [Atlas Vector Search Overview](https://www.mongodb.com/docs/atlas/atlas-vector-search/vector-search-overview/) and includes code examples and tutorials.
 
-## Features
+Additionally, this repository was designed to execute the **Quick Start** tutorials offered by MongoDB. The goal is to have a well-structured repository that allows the following operations via code:
 
-- Connect and interact with MongoDB Atlas using Python
-- Create a Atlas Search, `search_index`, by defining `vectorSearch`
-- Run a Vector Search Query
-- Connect and interact with MongoDB Atlas using Python
-- Implement vector search via `$vectorSearch` aggregation
-- Example dataset and queries for testing with sample_mflix
+1. **Data Processing**
+2. **Embedding Generation**
+3. **Storing Embeddings in Atlas**
+4. **Querying Relevant Documents Based on User Input**
+
+---
+
+## 🚀 Features
+
+- **Connect** and **interact** with MongoDB Atlas using Python.
+- **Create** an Atlas Search `search_index` by defining `vectorSearch`.
+- **Run** a Vector Search Query using `$vectorSearch` aggregation.
+- **Efficient Similarity Search** with embeddings.
+- **Example Dataset**: Includes `sample_mflix` for testing.
+
+---
 
 ## 📋 Prerequisites
 
-### Local Tools
+### ✅ Local Tools
 
-For all the modules, you'll need the following tools installed locally:
+Ensure you have the following tools installed:
 
-| Tool | Version | Purpose | Installation Link |
-|------|---------|---------|------------------|
-| Python | 3.12 | Programming language runtime | [Download](https://www.python.org/downloads/) |
-| uv | ≥ 0.4.30 | Python package installer and virtual environment manager | [Download](https://github.com/astral-sh/uv) |
+| Tool      | Version  | Purpose | Installation Link |
+|----------|---------|---------|------------------|
+| Python   | 3.12    | Programming language runtime | [Download](https://www.python.org/downloads/) |
+| uv       | ≥ 0.4.30 | Python package installer and virtual environment manager | [Download](https://github.com/astral-bash/uv) |
 
-### Cloud Services
+### ☁️ Cloud Services
 
-The project requires access to the following cloud services. Authentication is handled via environment variables in the `.env` file:
+The project requires access to **MongoDB Atlas**. Authentication is handled via environment variables in the `.env` file.
 
 | Service | Purpose | Cost | Environment Variable | Setup Guide |
 |---------|---------|------|---------------------|-------------|
-| [OpenAI API](https://openai.com/index/openai-api/) | LLM API | Pay-per-use | `OPENAI_API_KEY` | [Quick Start Guide](https://platform.openai.com/docs/quickstart) |
-| [MongoDB](https://rebrand.ly/second-brain-course-mongodb) | Document database (with vector search) | Free tier | `MONGODB_URI` | [Setup Guide](https://www.mongodb.com/cloud/atlas/register?utm_campaign=ai-pilot&utm_medium=creator&utm_term=iusztin&utm_source=course) |
+| [MongoDB Atlas](https://rebrand.ly/second-brain-course-mongodb) | Document database (with vector search) | Free tier | `MONGODB_URI` | [Setup Guide](https://www.mongodb.com/cloud/atlas/register?utm_campaign=ai-pilot&utm_medium=creator&utm_term=iusztin&utm_source=course) |
 
-## Setup
+---
 
-1. Set up your [Atlas Cluster](https://www.mongodb.com/docs/atlas/atlas-vector-search/tutorials/vector-search-quick-start/):
+## ⚡ Setup Instructions
 
-2. Clone this repository:
-   ```sh
+1. **Set up your Atlas Cluster:** Follow the [official guide](https://www.mongodb.com/docs/atlas/atlas-vector-search/tutorials/vector-search-quick-start/).
+
+2. **Clone this repository:**
+   ```bash
    git clone https://github.com/giufalcao/mongodb-atlas-vector-search.git
    cd mongodb-atlas-vector-search
    ```
 
-3. Create a virtual environment and install dependencies using `uv`:
-   ```sh
-   uv <name-of-your-env>
-   uv pip install -r requirements.txt
+3. **Create a virtual environment and install dependencies:**
+   ```bash
+   uv venv <name-of-your-env>
+   source ./.venv-offline/bin/activate  # or ./.venv-offline/bin/activate
+   uv pip install -e .
    ```
 
-4. Configure environment variables:
-   - Copy `.env.example` to `.env` and update the values:
-     ```sh
+4. **Configure environment variables:**
+   - Copy `.env.example` to `.env`:
+     ```bash
      cp .env.example .env
      ```
-   - Set your MongoDB connection string in `.env`:
-     ```sh
-     MONGO_URI="your-mongodb-uri"
+   - Set your **MongoDB connection string** in `.env`:
+     ```bash
+     MONGODB_URI="your-mongodb-uri"
      DB_NAME="vector_db"
      COLLECTION_NAME="embeddings"
-     OPENAI_API_KEY="your-openai-api-key"
      ```
 
-## Contributing
+---
+
+## 🎯 Usage
+
+1. **Run the script to ingest documents with vector embeddings:**
+   ```bash
+   python src/ingest.py
+   ```
+
+2. **Run a vector search query:**
+   ```bash
+   python src/retrieve.py "your search query"
+   ```
+
+---
+
+## 🛠️ Troubleshooting
+
+If you run into issues, here are some common solutions:
+
+### 1. `ModuleNotFoundError: No module named 'src'`
+   **Solution:** Ensure you are running the script from the root directory of the project:
+   ```bash
+   python -m src.ingest
+   ```
+
+### 2. `pymongo.errors.ServerSelectionTimeoutError`
+   **Solution:** Check if:
+   - Your **MongoDB Atlas cluster** is active.
+   - The **MONGODB_URI** in `.env` is correctly set.
+   - You have **whitelisted your IP** in MongoDB Atlas security settings.
+
+### 3. `KeyError: 'search_score'`
+   **Solution:** This likely means the vector search is not returning expected results. Try:
+   - Ensuring **indexes** are properly set up in MongoDB Atlas.
+   - Checking if embeddings were successfully stored in the database.
+
+### 4. `Environment variable errors`
+   **Solution:** Double-check that `.env` is properly configured and loaded using:
+   ```bash
+   cat .env
+   ```
+
+### 5. **Some Features May Not Work on MongoDB Atlas Free Tier**
+   **Issue:** Certain capabilities, such as **vector search on large datasets** or **advanced indexing**, may not be available on the **Free Tier** of MongoDB Atlas.
+   **Solution:** Consider upgrading to a **paid tier** for full access to all vector search features.
+
+---
+
+## 🤝 Contributing
 
 Contributions are welcome! Feel free to submit issues or pull requests.
 
-## License
+---
 
-This project is licensed under the MIT License.
+## 📜 License
 
+This project is licensed under the **MIT License**.
