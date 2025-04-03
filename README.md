@@ -19,7 +19,8 @@ Additionally, this repository was designed to execute the **Quick Start** tutori
 - **Create** an Atlas Search `search_index` by defining `vectorSearch`.
 - **Run** a Vector Search Query using `$vectorSearch` aggregation.
 - **Efficient Similarity Search** with embeddings.
-- **Example Dataset**: Includes `sample_mflix` for testing.
+- **Example Dataset**: Includes `sample_airbnb` for testing.
+- **Collection Used**: `listingsAndReviews`
 
 ---
 
