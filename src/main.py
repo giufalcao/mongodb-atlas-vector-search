@@ -2,7 +2,6 @@ import sys
 import argparse
 from loguru import logger
 import numpy as np
-from sentence_transformers import SentenceTransformer
 
 from configs import conf_models, conf_env
 from clients.mongodb_atlas import AtlasClient
@@ -89,29 +88,28 @@ if __name__ == "__main__":
         parsed_args.quantization
     )
 
+    logger.info("Data preparation and ingestion starting...")
+    ingestion.ingest_embeddings(
+        client,
+        field_to_embed,
+        embed_field,
+        conf_models.NOMIC_AI_EMBED_TEXT_V1
+    )
+    logger.info("Data preparation and ingestion finished.")
 
-    # logger.info("Data preparation and ingestion starting...")
-    # ingestion.ingest_embeddings(
-    #     client,
-    #     field_to_embed,
-    #     embed_field,
-    #     conf_models.NOMIC_AI_EMBED_TEXT_V1
-    # )
-    # logger.info("Data preparation and ingestion finished.")
+    if create_vector_search_index:
+        logger.info("Creating Vector Search Index...")
+        client.create_vector_search_index(
+            index_name,
+            embed_field,
+            dimensions,
+            similarity_metric,
+            quantization
 
-    # if create_vector_search_index:
-    #     logger.info("Creating Vector Search Index...")
-    #     client.create_vector_search_index(
-    #         index_name,
-    #         embed_field,
-    #         dimensions,
-    #         similarity_metric,
-    #         quantization
-
-    #     )
-    #     logger.info("Vector Search Index setup complete.")
-    # else:
-    #     logger.info("Using existing collection defined in .env")
+        )
+        logger.info("Vector Search Index setup complete.")
+    else:
+        logger.info("Using existing collection defined in .env")
 
     logger.info("Data retrieval starting...")
     user_input_text = "beach house"
