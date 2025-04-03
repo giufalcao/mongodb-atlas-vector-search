@@ -30,8 +30,7 @@ def log_search_results(results):
     if results:
         for doc in results:
             logger.info(
-                f"Movie ID: {doc['_id']} | Title: {doc['title']} | "
-                f"Year: {doc['year']} | Search Score: {doc['search_score']}"
+                f"Summary: {doc["summary"]}"
             )
 
 

@@ -54,9 +54,9 @@ def parse_args(
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="MongoDB Atlas Vector Search Example")
     parser.add_argument("--create_vector_search_index", type=bool, default=False, help="Create Vector Search Index")
-    parser.add_argument("--field_to_embed", type=str, default="plot", help="Name of the column we want to embed")
+    parser.add_argument("--field_to_embed", type=str, default="summary", help="Name of the column we want to embed")
     parser.add_argument("--index_name", type=str, default="test_vector_index", help="Name of the vector index")
-    parser.add_argument("--embed_field", type=str, default="new_embedding", help="Field containing vector embeddings")
+    parser.add_argument("--embed_field", type=str, default="embedding_vector", help="Field containing vector embeddings")
     parser.add_argument("--dimensions", type=int, default=768, help="Dimensionality of vector embeddings")
     parser.add_argument("--similarity_metric", type=str, default="dotProduct", help="Similarity metric (cosine, dotProduct, euclidean)")
     parser.add_argument("--quantization", type=str, default="scalar", help="Qantization method to apply (e.g., 'none', 'scalar', 'product').")
@@ -89,33 +89,32 @@ if __name__ == "__main__":
         parsed_args.quantization
     )
 
-    logger.info("Data preparation and ingestion starting...")
-    ingestion.ingest_embeddings(
-        client,
-        field_to_embed,
-        embed_field,
-        conf_models.NOMIC_AI_EMBED_TEXT_V1
-    )
-    logger.info("Data preparation and ingestion finished.")
-    logger.critical("This will not work on free tier clusters.")
 
-    if create_vector_search_index:
-        logger.info("Creating Vector Search Index...")
-        logger.critical("This will not work on free tier clusters.")
-        client.create_vector_search_index(
-            index_name,
-            embed_field,
-            dimensions,
-            similarity_metric,
-            quantization
+    # logger.info("Data preparation and ingestion starting...")
+    # ingestion.ingest_embeddings(
+    #     client,
+    #     field_to_embed,
+    #     embed_field,
+    #     conf_models.NOMIC_AI_EMBED_TEXT_V1
+    # )
+    # logger.info("Data preparation and ingestion finished.")
 
-        )
-        logger.info("Vector Search Index setup complete.")
-    else:
-        logger.info("Using existing collection defined in .env")
+    # if create_vector_search_index:
+    #     logger.info("Creating Vector Search Index...")
+    #     client.create_vector_search_index(
+    #         index_name,
+    #         embed_field,
+    #         dimensions,
+    #         similarity_metric,
+    #         quantization
+
+    #     )
+    #     logger.info("Vector Search Index setup complete.")
+    # else:
+    #     logger.info("Using existing collection defined in .env")
 
     logger.info("Data retrieval starting...")
-    user_input_text = "humans fighting"
+    user_input_text = "beach house"
     movies = retrieval.retrieval_relevant_documents(
         client, 
         user_input_text,

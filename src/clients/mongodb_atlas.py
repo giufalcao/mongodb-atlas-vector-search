@@ -126,8 +126,16 @@ class AtlasClient:
                     "index": index_name,
                     "path": attr_name,
                     "queryVector": embedding_vector,
-                    "numCandidates": 50,
+                    "exact": True,
                     "limit": limit,
+                }
+            }, {
+                '$project': {
+                    "_id": 0,
+                    'summary': 1, 
+                    'score': {
+                        '$meta': 'vectorSearchScore'
+                    }
                 }
             }
         ]
